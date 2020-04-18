@@ -1,0 +1,99 @@
+pipeline {
+    agent {
+        kubernetes {
+            defaultContainer 'golang'
+            yaml """
+spec:
+  serviceAccountName: jenkins
+  containers:
+  - name: golang
+    image: golang
+    command:
+    - cat
+    tty: true
+  - name: ansible
+    image: amioranza/ansible:v2.9
+    command:
+    - cat
+    tty: true
+  - name: dind
+    image: docker:18.05-dind
+    securityContext:
+      privileged: true
+    volumeMounts:
+      - name: dind-storage
+        mountPath: /var/lib/docker
+  volumes:
+    - name: dind-storage
+      emptyDir: {}
+"""
+        }
+    }
+
+    environment {
+        registry = "registry.setrem.mdcnet.ninja/root/app"
+        GOCACHE = "/tmp"
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                // Create our project directory.
+                sh 'cd ${GOPATH}/src'
+                sh 'mkdir -p ${GOPATH}/src/hello-world'
+                // Copy all files in our Jenkins workspace to our project directory.
+                sh 'cp -r ${WORKSPACE}/* ${GOPATH}/src/hello-world'
+                // Build the app.
+                sh 'go build'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // Create our project directory.
+                sh 'cd ${GOPATH}/src'
+                sh 'mkdir -p ${GOPATH}/src/hello-world'
+                // Copy all files in our Jenkins workspace to our project directory.
+                sh 'cp -r ${WORKSPACE}/* ${GOPATH}/src/hello-world'
+               // Remove cached test results.
+                sh 'go clean -cache'
+                // Run Unit Tests.
+                sh 'go test ./... -v -short'
+            }
+        }
+
+        stage('Publish') {
+            environment {
+                registryCredential = 'registry'
+            }
+            steps{
+                container ('dind') {
+                    script {
+                        def appimage = docker.build registry + ":$BUILD_NUMBER"
+                        docker.withRegistry('https://' + registry, registryCredential) {
+                            appimage.push()
+                            appimage.push('latest')
+                        }
+                    }
+                }
+            }
+        }
+
+        stage ('Deploy') {
+            steps {
+                container ('ansible') {
+                    script{
+                        def image_id = registry + ":$BUILD_NUMBER"
+                        sh "ansible-playbook  deploy/playbook.yml --extra-vars \"image_id=${image_id}\""
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo 'I will always clean my shit before exit!'
+            cleanWs()
+        }
+    }
+}
