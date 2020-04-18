@@ -11,7 +11,7 @@ Daniel Tomm e Willian Baum
 *  DockerHub: Publish
 *  Heroku: Deploy
 
-## Piline utilizada
+## Pipeline utilizada
 *  Build > Test > Publish > Deploy
 
 
