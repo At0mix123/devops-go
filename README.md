@@ -29,7 +29,6 @@ De forma geral as ferramentas utilizadas na atividade, foram escolhidas devido a
 *  GitLab
 *  Bitbucket
 *  VisualSVN
-*  Gitlab
 
 ### TravisCI
 *  Jenkins
