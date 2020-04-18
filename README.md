@@ -22,3 +22,25 @@ Para permitir o funcionamento do ambiente, foi efetuada a configuração e liber
 ## Escolha das ferramentas
 
 De forma geral as ferramentas utilizadas na atividade, foram escolhidas devido a facilidade de comunicação e integração entre ambas, bem como a quantidade de materiais disponíveis.
+
+## Ferramentas Alternativas
+
+### Github
+*  GitLab
+*  Bitbucket
+*  VisualSVN
+*  Gitlab
+
+### TravisCI
+*  Jenkins
+*  Gitlab
+*  Jira/Atlassian
+
+### Heroku
+*  Google Cloud Plataform
+*  AWS
+*  Azure
+
+## Links
+*  Docker Hub: https://hub.docker.com/repository/docker/danieltomm/devops-go
+*  Heroku: https://devops-goo.herokuapp.com/
